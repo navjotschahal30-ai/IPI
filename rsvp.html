@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>RSVP — Interactive Dialogue, August 28</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14213D;
+    --gold:#B8863B;
+    --maroon:#6E1E22;
+    --paper:#FAF7F1;
+    --charcoal:#22262B;
+    --line: rgba(20,33,61,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--charcoal);
+    font-family:'Source Sans 3', sans-serif;
+    min-height:100%;
+    width:100%;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:clamp(24px,6vw,56px) 16px clamp(40px,8vw,80px);
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  .card{
+    width:100%;
+    max-width:560px;
+    background:#fff;
+    border:1px solid var(--line);
+    position:relative;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:5px;
+    background:linear-gradient(90deg, var(--ink) 0%, var(--gold) 50%, var(--maroon) 100%);
+  }
+  .inner{ padding:clamp(28px,6vw,44px) clamp(20px,6vw,40px) clamp(24px,5vw,40px); }
+
+  .emblem{ display:flex; justify-content:center; margin-bottom:22px; }
+  .emblem svg{ width:56px; height:56px; }
+
+  .eyebrow{
+    text-align:center;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:12px;
+    color:var(--ink);
+    font-weight:600;
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:clamp(26px,6vw,34px);
+    line-height:1.15;
+    text-align:center;
+    color:var(--ink);
+    margin:0 0 12px;
+  }
+  .sub{
+    text-align:center;
+    font-size:15px;
+    color:#4b5261;
+    max-width:420px;
+    margin:0 auto 26px;
+  }
+  .divider{
+    width:64px; height:2px; margin:0 auto 28px;
+    background:var(--gold);
+  }
+  .details{
+    display:flex;
+    justify-content:center;
+    align-items:stretch;
+    gap:0;
+    font-size:13.5px;
+    color:var(--ink);
+    margin-bottom:32px;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding:16px 0;
+  }
+  .details div{
+    text-align:center;
+    flex:1;
+    padding:0 12px;
+    border-left:1px solid var(--line);
+  }
+  .details div:first-child{ border-left:none; }
+  .details span{
+    display:block;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:10.5px;
+    color:var(--maroon);
+    font-weight:600;
+    margin-bottom:3px;
+  }
+  @media (max-width:420px){
+    .details{ flex-direction:column; gap:12px; padding:14px 0; }
+    .details div{ border-left:none; padding:0; }
+  }
+
+  form{ display:flex; flex-direction:column; gap:18px; }
+  label{
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:6px;
+    display:block;
+  }
+  input{
+    width:100%;
+    padding:12px 14px;
+    font-size:15px;
+    font-family:inherit;
+    border:1px solid #cfd3da;
+    background:#fdfdfc;
+    color:var(--charcoal);
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus{
+    outline:none;
+    border-color:var(--ink);
+    box-shadow:0 0 0 3px rgba(20,33,61,0.12);
+  }
+  input::placeholder{ color:#9aa0aa; }
+
+  .field-error{
+    font-size:12.5px;
+    color:var(--maroon);
+    margin-top:5px;
+    display:none;
+  }
+  .invalid input{ border-color:var(--maroon); }
+  .invalid .field-error{ display:block; }
+
+  button{
+    margin-top:8px;
+    padding:14px 20px;
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:.02em;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  button:hover{ background:#0d1830; }
+  button:disabled{ background:#8b93a3; cursor:not-allowed; }
+
+  .privacy{
+    text-align:center;
+    font-size:12px;
+    color:#8a8f99;
+    margin-top:16px;
+  }
+
+  .state{ display:none; text-align:center; }
+  .state.active{ display:flex; flex-direction:column; }
+
+  .confirm-emblem{ display:flex; justify-content:center; margin-bottom:18px; }
+  .confirm-emblem svg{ width:48px; height:48px; }
+  .confirm h2{
+    font-family:'Cormorant Garamond', serif;
+    font-size:28px;
+    color:var(--ink);
+    margin:0 0 10px;
+  }
+  .confirm p{ color:#4b5261; font-size:15px; max-width:380px; margin:0 auto; }
+  .confirm .name{ color:var(--maroon); font-weight:600; }
+
+  .error-banner{
+    display:none;
+    background:#FBEAEA;
+    border:1px solid var(--maroon);
+    color:var(--maroon);
+    font-size:13.5px;
+    padding:12px 14px;
+    margin-bottom:16px;
+  }
+  .error-banner.active{ display:block; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="inner">
+
+    <!-- FORM STATE -->
+    <div id="form-state" class="state active">
+      <div class="emblem" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 6v34" stroke="#B8863B" stroke-width="1.6"/>
+          <path d="M14 16h36" stroke="#14213D" stroke-width="1.6"/>
+          <path d="M14 16L6 30c0 5 4.5 8 8 8s8-3 8-8L14 16Z" stroke="#14213D" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M50 16L42 30c0 5 4.5 8 8 8s8-3 8-8l-8-14Z" stroke="#14213D" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M22 54c3-3 7-4.5 10-4.5s7 1.5 10 4.5" stroke="#B8863B" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="32" cy="44" r="3.2" fill="#6E1E22"/>
+        </svg>
+      </div>
+
+      <p class="eyebrow">Indian Punjabi Interpreters</p>
+      <h1>Reserve Your Seat</h1>
+      <p class="sub">An evening of dinner and honest conversation with the Punjabi interpretation community — for the lawyers and judges shaping how justice is heard.</p>
+      <div class="divider"></div>
+
+      <div class="details">
+        <div><span>Date</span>Friday, Sep 4</div>
+        <div><span>Time</span>6:00 PM</div>
+        <div><span>Venue</span>Superior Studios</div>
+      </div>
+
+      <div id="error-banner" class="error-banner">Something went wrong sending your RSVP. Please try again, or email us directly.</div>
+
+      <form id="rsvp-form" novalidate>
+        <div class="field-group" id="group-name">
+          <label for="fullName">Full name</label>
+          <input type="text" id="fullName" name="fullName" placeholder="Jane Doe" autocomplete="name">
+          <div class="field-error">Please enter your full name.</div>
+        </div>
+
+        <div class="field-group" id="group-email">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" placeholder="jane.doe@email.com" autocomplete="email">
+          <div class="field-error">Please enter a valid email address.</div>
+        </div>
+
+        <div class="field-group" id="group-phone">
+          <label for="phone">Phone number</label>
+          <input type="tel" id="phone" name="phone" placeholder="(519) 555-0123" autocomplete="tel">
+          <div class="field-error">Please enter a valid phone number.</div>
+        </div>
+
+        <button type="submit" id="submit-btn">Confirm my seat</button>
+        <p class="privacy">Your details are used only to confirm your seat and share event updates.</p>
+      </form>
+    </div>
+
+    <!-- CONFIRMATION STATE -->
+    <div id="confirm-state" class="state confirm">
+      <div class="confirm-emblem" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="30" stroke="#B8863B" stroke-width="1.6"/>
+          <path d="M20 33l8 8 16-18" stroke="#14213D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>Your seat is confirmed</h2>
+      <p>Thank you, <span class="name" id="confirm-name">friend</span>. We've saved your seat for September 4 at Superior Studios, Mississauga. Details will be sent to your email shortly.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // NOTE FOR NAVJOT / IPI ORGANIZER:
+  // This form posts to Formspree, a free form-backend service. To activate it:
+  // 1. Create a free account at https://formspree.io
+  // 2. Create a new form and copy the endpoint it gives you (looks like https://formspree.io/f/xxxxxxx)
+  // 3. Replace FORM_ENDPOINT below with that URL.
+  // Every RSVP will then arrive in your email and in the Formspree dashboard as a spreadsheet-exportable list.
+  const FORM_ENDPOINT = "https://formspree.io/f/REPLACE_WITH_YOUR_FORM_ID";
+
+  const form = document.getElementById('rsvp-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const errorBanner = document.getElementById('error-banner');
+
+  function validate(){
+    let valid = true;
+    const name = document.getElementById('fullName');
+    const email = document.getElementById('email');
+    const phone = document.getElementById('phone');
+
+    document.getElementById('group-name').classList.toggle('invalid', name.value.trim().length < 2);
+    document.getElementById('group-email').classList.toggle('invalid', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim()));
+    document.getElementById('group-phone').classList.toggle('invalid', phone.value.replace(/\D/g,'').length < 10);
+
+    valid = !document.getElementById('group-name').classList.contains('invalid')
+      && !document.getElementById('group-email').classList.contains('invalid')
+      && !document.getElementById('group-phone').classList.contains('invalid');
+
+    return valid;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBanner.classList.remove('active');
+    if(!validate()) return;
+
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+
+    try{
+      const res = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName, email, phone,
+          event: "Interactive Dialogue: Navigating the Punjabi Language Landscape in the Ontario Legal System — September 4, 2026, Superior Studios, Mississauga"
+        })
+      });
+
+      if(!res.ok) throw new Error('Submission failed');
+
+      document.getElementById('confirm-name').textContent = fullName.split(' ')[0];
+      document.getElementById('form-state').classList.remove('active');
+      document.getElementById('confirm-state').classList.add('active');
+    }catch(err){
+      errorBanner.classList.add('active');
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Confirm my seat";
+    }
+  });
+</script>
+
+</body>
+</html>
