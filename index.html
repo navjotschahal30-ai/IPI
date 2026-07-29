@@ -268,12 +268,14 @@
 
 <script>
   // NOTE FOR NAVJOT / IPI ORGANIZER:
-  // This form posts to Formspree, a free form-backend service. To activate it:
-  // 1. Create a free account at https://formspree.io
-  // 2. Create a new form and copy the endpoint it gives you (looks like https://formspree.io/f/xxxxxxx)
-  // 3. Replace FORM_ENDPOINT below with that URL.
-  // Every RSVP will then arrive in your email and in the Formspree dashboard as a spreadsheet-exportable list.
-  const FORM_ENDPOINT = "https://formspree.io/f/REPLACE_WITH_YOUR_FORM_ID";
+  // This form posts to a Google Apps Script Web App bound to your RSVP Google Sheet.
+  // Every submission is appended as a new row: Timestamp | Full Name | Email | Phone | Event.
+  // Because Google Apps Script web apps don't return normal CORS headers, this request is
+  // sent with mode:'no-cors', which means the browser can't read a status code back —
+  // so the confirmation screen shows as soon as the request is sent, not after a server
+  // reply. If you ever suspect a submission didn't land, check Extensions > Apps Script >
+  // Executions in your Sheet for the actual server-side log, rather than trusting the page alone.
+  const FORM_ENDPOINT = "https://script.google.com/macros/s/AKfycbxCtrP3-3xCkWeB7aUrQE7jewFGXbd5VLArS_20Cs823m6dZuXB8ZMUOlsVSrugHj20/exec";
 
   const form = document.getElementById('rsvp-form');
   const submitBtn = document.getElementById('submit-btn');
@@ -308,22 +310,26 @@
     submitBtn.disabled = true;
     submitBtn.textContent = "Sending...";
 
-    try{
-      const res = await fetch(FORM_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName, email, phone,
-          event: "Interactive Dialogue: Navigating the Punjabi Language Landscape in the Ontario Legal System — September 4, 2026, Superior Studios, Mississauga"
-        })
-      });
+    const body = new URLSearchParams({
+      fullName, email, phone,
+      event: "Interactive Dialogue: Navigating the Punjabi Language Landscape in the Ontario Legal System — September 4, 2026, Superior Studios, Mississauga"
+    });
 
-      if(!res.ok) throw new Error('Submission failed');
+    try{
+      // no-cors: request is sent and the row is appended server-side, but the browser
+      // treats the response as opaque, so we can't check res.ok here.
+      await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: body
+      });
 
       document.getElementById('confirm-name').textContent = fullName.split(' ')[0];
       document.getElementById('form-state').classList.remove('active');
       document.getElementById('confirm-state').classList.add('active');
     }catch(err){
+      // This only triggers on an actual network failure (offline, DNS, blocked request),
+      // not on a server-side error, since the response itself is unreadable in no-cors mode.
       errorBanner.classList.add('active');
       submitBtn.disabled = false;
       submitBtn.textContent = "Confirm my seat";
